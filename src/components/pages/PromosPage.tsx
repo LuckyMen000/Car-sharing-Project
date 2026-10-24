@@ -1,0 +1,13 @@
+import React, { useState } from 'react';
+import { Check, Gift, Ticket, ShieldCheck, ArrowRight, Info } from 'lucide-react';
+import { Button } from '../shared';
+const CODES: Record<string, {label:string; detail:string}> = {
+  WELCOME10: {label:'Приветственная скидка',detail:'Скидка 10% на демо-расчёт следующих поездок'},
+  DRIVE500: {label:'Бонус на поездки',detail:'500 ₸ скидки на демо-расчёт поездки'},
+  ALMATY15: {label:'Алматы едет',detail:'Скидка 15% на демо-расчёт поездок'},
+};
+export default function PromosPage({state,update,notify}:any){
+ const [code,setCode]=useState(''); const [error,setError]=useState('');
+ const redeem=(e:React.FormEvent)=>{e.preventDefault();const c=code.trim().toUpperCase();if(!CODES[c]){setError('Промокод не найден. Для демонстрации используйте WELCOME10, DRIVE500 или ALMATY15.');return;}if((state.promos||[]).includes(c)){setError('Этот промокод уже активирован.');return;} update({promos:[...(state.promos||[]),c]});notify('Промокод '+c+' активирован');setCode('');setError('');};
+ return <div className="content-page promos-page"><div className="page-heading"><div><p className="eyebrow">СПЕЦИАЛЬНЫЕ ПРЕДЛОЖЕНИЯ</p><h1>Промокоды</h1><p>Активируйте бонусы для поездок по городу.</p></div><div className="heading-icon"><Gift size={25}/></div></div><div className="promo-layout"><div className="white-card promo-activate"><div className="promo-big-icon"><Ticket size={29}/></div><h2>Есть промокод?</h2><p>Введите его ниже — бонус появится в вашем аккаунте.</p><form onSubmit={redeem}><label className="label" htmlFor="promoCode">ПРОМОКОД</label><input id="promoCode" className="input promo-input" value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setError('')}} placeholder="НАПРИМЕР, WELCOME10" maxLength={32}/>{error&&<p role="alert" className="promo-error">{error}</p>}<Button className="block" disabled={!code.trim()}>Активировать <ArrowRight size={17}/></Button></form><p className="micro muted"><Info size={14}/> Промокоды тестовые. Реальные скидки требуют проверки на сервере.</p></div><div className="white-card promo-active"><h3>Мои промокоды</h3>{(state.promos||[]).length===0?<div className="promo-empty"><Gift size={40}/><strong>Пока нет активированных промокодов</strong><span>Попробуйте WELCOME10</span></div>:(state.promos||[]).map((c:string)=><div key={c} className="promo-entry"><span className="promo-entry-icon"><Check size={19}/></span><div><strong>{c}</strong><p>{CODES[c]?.detail||'Активированный промокод'}</p></div><span className="promo-status">Активен</span></div>)}<div className="promo-info"><ShieldCheck size={18}/><span>В демоверсии промокоды сохраняются только в этом браузере.</span></div></div></div></div>;
+}
